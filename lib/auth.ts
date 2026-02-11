@@ -7,19 +7,21 @@ import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
+  trustHost: true,
   session: { strategy: "database" },
   providers: [
     Credentials({
-      credentials: {
-        email: {},
-        password: {}
-      },
+      credentials: { email: {}, password: {} },
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) return null;
-        const user = await prisma.user.findUnique({ where: { email: String(credentials.email) } });
+
+        const user = await prisma.user.findUnique({ where: { email: String(credentials.email).toLowerCase() } });
         if (!user?.password) return null;
+
         const valid = await bcrypt.compare(String(credentials.password), user.password);
-        return valid ? { id: user.id, email: user.email } : null;
+        if (!valid) return null;
+
+        return { id: user.id, email: user.email };
       }
     }),
     Google({
@@ -27,9 +29,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? ""
     })
   ],
-  pages: {
-    signIn: "/auth/signin"
-  },
+  pages: { signIn: "/auth/signin" },
   callbacks: {
     async session({ session, user }) {
       if (session.user) session.user.id = user.id;

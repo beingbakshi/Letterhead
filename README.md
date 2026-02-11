@@ -1,39 +1,52 @@
 # LetterForge – Digital Letterhead SaaS
 
-Next.js 14 SaaS blueprint for a Vercel-hosted digital letterhead editor with templates, plan enforcement, uploads, and client-side PDF export.
+LetterForge is a Vercel-first SaaS for creating branded business letters with reusable company letterheads, rich editing, AI generation, and PDF export.
 
-## Stack
-- Next.js 14 App Router + TypeScript + TailwindCSS
-- Tiptap editor
-- NextAuth (Credentials + Google)
-- Prisma + Vercel Postgres
-- Vercel Blob uploads
-- Stripe webhook for plan upgrades
-- Server Actions + API Routes
+## Core capabilities
+- Next.js 14 App Router architecture (no separate backend service)
+- NextAuth auth with email/password + Google
+- Prisma schema for users/companies/documents/subscription plan metadata
+- Tiptap editor with variables, table insertion, image/signature insertion, and page-break markers
+- Six dynamic letterhead templates with adjustable logo size/margins + header/footer toggles
+- PDF export with free-plan watermark support
+- Vercel Blob upload endpoint for logos/signatures/images
+- Stripe webhook plan upgrade flow
+- Route protection + basic export rate limiting
 
-## Project structure
-- `app/dashboard` – user dashboard
-- `app/editor` – letterhead canvas/editor
-- `app/api` – upload/export/auth/stripe APIs
-- `components` – editor + template components
-- `lib` – auth, prisma, rate limit, actions
-- `prisma` – schema
-- `types` – local shared typings
+## Tech stack
+- Next.js 14 + TypeScript + TailwindCSS
+- Tiptap
+- Prisma + Postgres (Vercel Postgres or Supabase)
+- NextAuth
+- Stripe
+- OpenAI API
+
+## Routes
+- `/` – landing page
+- `/auth/register` – register
+- `/auth/signin` – login
+- `/dashboard` – company/doc listing
+- `/editor` – letter editor workspace
+- `/api/upload` – blob upload
+- `/api/export` – export policy check
+- `/api/ai` – AI generation
+- `/api/stripe/webhook` – Stripe webhook
 
 ## Environment variables
-Copy `.env.example` and fill required values.
+See `.env.example` for required values.
 
-## Local run
+## Local setup
 ```bash
 npm install
 npx prisma generate
+npx prisma migrate dev
 npm run dev
 ```
 
-## Deployment (Vercel)
-1. Push to GitHub.
-2. Import project in Vercel.
-3. Set env vars (`DATABASE_URL`, `NEXTAUTH_SECRET`, `STRIPE_SECRET`, `OPENAI_KEY`, etc.).
-4. Connect Vercel Postgres + Blob.
-5. Run Prisma migrations.
+## Vercel deployment
+1. Push repository to GitHub.
+2. Import into Vercel.
+3. Configure environment variables.
+4. Attach Vercel Postgres and Blob stores.
+5. Run migrations.
 6. Deploy.

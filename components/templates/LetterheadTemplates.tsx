@@ -1,31 +1,104 @@
 import { CompanySnapshot } from "@/types/letterhead";
 
-type Props = { company: CompanySnapshot; showHeader: boolean; showFooter: boolean };
+type TemplateProps = {
+  company: CompanySnapshot;
+  showHeader: boolean;
+  showFooter: boolean;
+  logoSize: number;
+  marginX: number;
+};
 
-const Footer = ({ company }: { company: CompanySnapshot }) => (
-  <footer className="border-t px-8 py-3 text-xs text-slate-600">{company.address} | {company.phone} | {company.email} | GST: {company.gst}</footer>
+const pad = (marginX: number) => ({ paddingLeft: marginX, paddingRight: marginX });
+
+const FooterLine = ({ company, marginX }: { company: CompanySnapshot; marginX: number }) => (
+  <footer className="border-t py-3 text-xs text-slate-600" style={pad(marginX)}>
+    {[company.address, company.phone, company.email, company.website].filter(Boolean).join(" • ")}
+    {company.gst ? ` • GST: ${company.gst}` : ""}
+  </footer>
 );
 
-export function TemplateMinimal({ company, showHeader, showFooter }: Props) {
-  return <div>{showHeader && <header className="px-8 py-4 font-semibold">{company.name}</header>}{showFooter && <Footer company={company} />}</div>;
+const Brand = ({ company, logoSize }: { company: CompanySnapshot; logoSize: number }) => (
+  <div className="flex items-center gap-3">
+    {company.logoUrl ? <img alt={company.name} src={company.logoUrl} style={{ width: logoSize, height: logoSize, objectFit: "contain" }} /> : null}
+    <div>
+      <p className="font-semibold">{company.name}</p>
+      {company.address ? <p className="text-xs text-slate-500">{company.address}</p> : null}
+    </div>
+  </div>
+);
+
+export function TemplateMinimal({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div>
+      {showHeader ? <header className="py-4" style={pad(marginX)}><Brand company={company} logoSize={logoSize} /></header> : null}
+      {showFooter ? <FooterLine company={company} marginX={marginX} /> : null}
+    </div>
+  );
 }
 
-export function TemplateCenteredLogo({ company, showHeader, showFooter }: Props) {
-  return <div>{showHeader && <header className="px-8 py-6 text-center text-xl font-bold">{company.name}</header>}{showFooter && <Footer company={company} />}</div>;
+export function TemplateCenteredLogo({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div>
+      {showHeader ? (
+        <header className="py-5 text-center" style={pad(marginX)}>
+          {company.logoUrl ? <img alt={company.name} src={company.logoUrl} className="mx-auto" style={{ width: logoSize, height: logoSize, objectFit: "contain" }} /> : null}
+          <p className="mt-2 text-lg font-bold">{company.name}</p>
+        </header>
+      ) : null}
+      {showFooter ? <FooterLine company={company} marginX={marginX} /> : null}
+    </div>
+  );
 }
 
-export function TemplateTopColorBar({ company, showHeader, showFooter }: Props) {
-  return <div>{showHeader && <header><div className="h-2" style={{ background: company.primaryColor }} /><div className="px-8 py-3">{company.name}</div></header>}{showFooter && <Footer company={company} />}</div>;
+export function TemplateTopColorBar({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div>
+      {showHeader ? (
+        <header>
+          <div className="h-2" style={{ background: company.primaryColor ?? "#0f172a" }} />
+          <div className="py-4" style={pad(marginX)}><Brand company={company} logoSize={logoSize} /></div>
+        </header>
+      ) : null}
+      {showFooter ? <FooterLine company={company} marginX={marginX} /> : null}
+    </div>
+  );
 }
 
-export function TemplateLeftStripe({ company, showHeader, showFooter }: Props) {
-  return <div className="border-l-8" style={{ borderColor: company.primaryColor }}>{showHeader && <header className="px-8 py-4">{company.name}</header>}{showFooter && <Footer company={company} />}</div>;
+export function TemplateLeftStripe({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div className="border-l-8" style={{ borderColor: company.primaryColor ?? "#0f172a" }}>
+      {showHeader ? <header className="py-4" style={pad(marginX)}><Brand company={company} logoSize={logoSize} /></header> : null}
+      {showFooter ? <FooterLine company={company} marginX={marginX} /> : null}
+    </div>
+  );
 }
 
-export function TemplateModernClean({ company, showHeader, showFooter }: Props) {
-  return <div>{showHeader && <header className="flex items-center justify-between px-8 py-4"><strong>{company.name}</strong><span>{company.website}</span></header>}{showFooter && <Footer company={company} />}</div>;
+export function TemplateModernClean({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div>
+      {showHeader ? (
+        <header className="flex items-center justify-between py-4" style={pad(marginX)}>
+          <Brand company={company} logoSize={logoSize} />
+          <div className="text-right text-xs text-slate-600">
+            {company.email ? <p>{company.email}</p> : null}
+            {company.website ? <p>{company.website}</p> : null}
+          </div>
+        </header>
+      ) : null}
+      {showFooter ? <FooterLine company={company} marginX={marginX} /> : null}
+    </div>
+  );
 }
 
-export function TemplateLegalFooter({ company, showHeader, showFooter }: Props) {
-  return <div>{showHeader && <header className="px-8 py-4"><h2 className="text-lg font-semibold">{company.name}</h2></header>}{showFooter && <footer className="bg-slate-50 px-8 py-4 text-xs">This document is electronically generated by {company.signatory}. Registered GST: {company.gst}. Contact: {company.address}.</footer>}</div>;
+export function TemplateLegalFooter({ company, showHeader, showFooter, logoSize, marginX }: TemplateProps) {
+  return (
+    <div>
+      {showHeader ? <header className="py-4" style={pad(marginX)}><Brand company={company} logoSize={logoSize} /></header> : null}
+      {showFooter ? (
+        <footer className="bg-slate-50 py-4 text-xs text-slate-700" style={pad(marginX)}>
+          This document is generated by {company.signatory ?? company.name}. Registered business details: GST {company.gst ?? "N/A"}.
+        </footer>
+      ) : null}
+    </div>
+  );
 }

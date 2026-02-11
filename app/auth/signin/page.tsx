@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { signIn } from "@/lib/auth";
 
 export default function SignInPage() {
@@ -8,7 +9,7 @@ export default function SignInPage() {
         action={async (formData) => {
           "use server";
           await signIn("credentials", {
-            email: formData.get("email"),
+            email: String(formData.get("email") ?? "").toLowerCase(),
             password: formData.get("password"),
             redirectTo: "/dashboard"
           });
@@ -17,8 +18,20 @@ export default function SignInPage() {
       >
         <input name="email" type="email" required className="w-full rounded border p-2" placeholder="Email" />
         <input name="password" type="password" required className="w-full rounded border p-2" placeholder="Password" />
-        <button className="w-full rounded bg-slate-900 p-2 text-white" type="submit">Sign in</button>
+        <button className="w-full rounded bg-slate-900 p-2 text-white" type="submit">Sign in with password</button>
       </form>
+
+      <form
+        className="mt-3"
+        action={async () => {
+          "use server";
+          await signIn("google", { redirectTo: "/dashboard" });
+        }}
+      >
+        <button className="w-full rounded border p-2" type="submit">Continue with Google</button>
+      </form>
+
+      <p className="mt-3 text-sm text-slate-500">No account yet? <Link href="/auth/register" className="underline">Create one</Link></p>
     </main>
   );
 }
